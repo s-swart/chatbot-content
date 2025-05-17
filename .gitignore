@@ -1,5 +1,0 @@
-# Supabase Terraform secrets and state
-supabase-infra/terraform.tfvars
-supabase-infra/terraform.tfstate
-supabase-infra/terraform.tfstate.backup
-supabase-infra/.terraform/
