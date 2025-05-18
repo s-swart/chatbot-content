@@ -1,3 +1,19 @@
+// sync-resume-blurbs.ts
+//
+// PURPOSE:
+// This script reads your `resume-blurbs.md` file, splits it into content chunks,
+// generates OpenAI embeddings for each chunk, and stores them in the Supabase `vectors` table.
+// It also deletes outdated vectors that are no longer in the source file.
+//
+// USE THIS WHEN:
+// - You’ve made updates to your resume-blurbs content and want to sync it with your vector DB
+// - You’re building a semantic search or chatbot that relies on up-to-date resume context
+// - You want to verify vector counts and perform safe deduplication and deletion
+//
+// REQUIREMENTS:
+// - OpenAI API key (OPENAI_API_KEY)
+// - Supabase credentials (SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY)
+// - `resume-blurbs.md` must exist in the root folder
 import dotenv from 'dotenv'
 dotenv.config()
 import fs from 'fs'

@@ -28,6 +28,7 @@ const supabase = createClient(
 )
 
 async function main() {
+  // 🔧 Customize this query to test how your chatbot matches against your stored resume blurbs.
   const query = 'experience with GTM strategy and pricing analytics'
 
   console.log(`🔍 Embedding query: "${query}"`)

@@ -1,3 +1,14 @@
+// test-openai.ts
+//
+// PURPOSE:
+// This script checks that your OpenAI API key is working by generating a test embedding.
+// It ensures the embedding API is reachable and returns a valid result.
+//
+// USE THIS WHEN:
+// - You are setting up your environment and want to validate OpenAI credentials
+// - You need to debug API access issues or rate limiting
+// - You want a lightweight test before running full embedding pipelines
+
 import 'dotenv/config'
 import OpenAI from 'openai'
 
