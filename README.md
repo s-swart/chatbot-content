@@ -49,9 +49,11 @@ npx tsx scripts/test-semantic-search.ts
 Create a `.env` file in the root with:
 ```env
 OPENAI_API_KEY=your-openai-key
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=your-supabase-key
+SUPABASE_URL=https://your-project-id.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
 ```
+
+> ⚠️ These environment variables must also be configured in Vercel for deployment.
 
 ---
 
@@ -85,8 +87,19 @@ The chatbot:
 ## 📎 TODO
 
 - [ ] Add GitHub Actions integration for auto-sync
-- [ ] Integrate into production chatbot (e.g., Vercel API route)
+- ✅ Integrated into production chatbot (Vercel API route)
 - [ ] Add CLI to customize sync/test behavior
+
+---
+
+## 🚀 Deployment Notes
+
+To deploy successfully on Vercel:
+- Set all required environment variables in your Vercel project:
+  - `OPENAI_API_KEY`
+  - `SUPABASE_URL`
+  - `SUPABASE_SERVICE_ROLE_KEY`
+- Redeploy after environment variable changes.
 
 ---
 
