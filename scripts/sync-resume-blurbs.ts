@@ -78,7 +78,8 @@ async function main() {
   const sections: string[] = fileContent.split(/^##\s+/m).filter(Boolean)
 
   let globalIndex = 0
-  let totalChunks = 0
+  let upsertedChunks = 0
+  let totalExpectedChunks = 0
 
   for (const section of sections) {
     const [headingLine, ...rest] = section.split('\n')
@@ -88,6 +89,7 @@ async function main() {
     const chunks = splitIntoChunks(content, CHUNK_SIZE)
 
     for (const chunk of chunks as string[]) {
+      totalExpectedChunks++
       const trimmed = chunk.trim()
       const chunkHash = hashText(trimmed)
       allHashes.push(chunkHash)
@@ -102,7 +104,7 @@ async function main() {
           position: globalIndex++,
         });
         console.log(`✅ Upserted chunk from "${safeHeading}"`);
-        totalChunks++;
+        upsertedChunks++;
       } catch (err: any) {
         if (
           err?.message?.includes('duplicate key value') ||
@@ -142,7 +144,20 @@ async function main() {
     }
   }
 
-  console.log(`✨ Done. Upserted ${totalChunks} chunks from ${sections.length} sections.`)
+  console.log(`✨ Done. Upserted ${upsertedChunks} new chunks from ${sections.length} sections.`)
+
+  // Verify that the number of vectors in the database matches the number of chunks sent over
+  const { count, error: countError } = await supabase
+    .from('vectors')
+    .select('*', { count: 'exact', head: true })
+
+  if (countError) {
+    console.error('❌ Failed to count vectors in database:', countError)
+  } else if (count !== totalExpectedChunks) {
+    console.warn(`⚠️ Vector count mismatch: expected ${totalExpectedChunks}, but found ${count} in database.`)
+  } else {
+    console.log(`✅ Vector count verified: ${count} vectors present.`)
+  }
 }
 
 main().catch(console.error)
