@@ -16,11 +16,14 @@
 // - `resume-blurbs.md` must exist in the root folder
 import dotenv from 'dotenv'
 dotenv.config()
+
+const DEBUG_CHUNKS = true // Set to false to disable logging chunks
 import fs from 'fs'
 import path from 'path'
 import crypto from 'crypto'
 import OpenAI from 'openai'
 import { createClient } from '@supabase/supabase-js'
+import { marked } from 'marked'
 
 const RESUME_BLURBS_PATH = path.resolve(__dirname, '../resume-blurbs.md')
 const CHUNK_SIZE = 2000 // Approximate characters for ~500 tokens
@@ -47,11 +50,48 @@ function hashText(text: string) {
   return crypto.createHash('sha256').update(text).digest('hex')
 }
 
-function splitIntoChunks(text: string, size: number): string[] {
+function smartChunkMarkdown(input: string, maxLen = 1800): string[] {
+  // Split at every level-2 heading (## ...)
+  const sections = input.split(/^##\s+/gm).filter(Boolean)
   const chunks: string[] = []
-  for (let i = 0; i < text.length; i += size) {
-    chunks.push(text.slice(i, i + size))
+
+  for (const section of sections) {
+    const lines = section.trim().split('\n')
+    const heading = lines[0]?.trim()
+    const body = lines.slice(1).join('\n').trim()
+
+    if (!body) continue
+
+    let currentChunk = `## ${heading}\n`
+    let currentLength = currentChunk.length
+
+    // Split body into paragraphs (by two or more newlines)
+    const paragraphs = body.split(/\n{2,}/)
+
+    for (const para of paragraphs) {
+      const paraLen = para.length + 2 // +2 for spacing
+
+      if (currentLength + paraLen > maxLen) {
+        chunks.push(currentChunk.trim())
+        currentChunk = ''
+        currentLength = 0
+      }
+
+      // If starting a new chunk, add heading
+      if (!currentChunk) {
+        currentChunk = `## ${heading}\n`
+        currentLength = currentChunk.length
+      }
+
+      currentChunk += para + '\n\n'
+      currentLength += paraLen
+    }
+
+    if (currentChunk.trim()) {
+      chunks.push(currentChunk.trim())
+    }
   }
+
   return chunks
 }
 
@@ -91,45 +131,39 @@ async function main() {
   const allHashes: string[] = []
 
   const fileContent = fs.readFileSync(RESUME_BLURBS_PATH, 'utf-8')
-  const sections: string[] = fileContent.split(/^##\s+/m).filter(Boolean)
-
+  
+  const chunks = smartChunkMarkdown(fileContent)
   let globalIndex = 0
   let upsertedChunks = 0
-  let totalExpectedChunks = 0
+  let totalExpectedChunks = chunks.length
 
-  for (const section of sections) {
-    const [headingLine, ...rest] = section.split('\n')
-    const safeHeading = headingLine?.trim() || 'Untitled Section'
-    const content = rest.join('\n').trim()
+  for (const chunk of chunks) {
+    const trimmed = chunk.trim()
+    if (DEBUG_CHUNKS) {
+      console.log(`🔍 Chunk #${globalIndex + 1}/${chunks.length}:\n${trimmed}\n---`)
+    }
+    const chunkHash = hashText(trimmed)
+    allHashes.push(chunkHash)
+    const embedding = await embedText(trimmed)
 
-    const chunks = splitIntoChunks(content, CHUNK_SIZE)
-
-    for (const chunk of chunks as string[]) {
-      totalExpectedChunks++
-      const trimmed = chunk.trim()
-      const chunkHash = hashText(trimmed)
-      allHashes.push(chunkHash)
-      const embedding = await embedText(trimmed)
-
-      try {
-        await upsertToSupabase({
-          heading: safeHeading,
-          chunk: trimmed,
-          hash: chunkHash,
-          embedding,
-          position: globalIndex++,
-        });
-        console.log(`✅ Upserted chunk from "${safeHeading}"`);
-        upsertedChunks++;
-      } catch (err: any) {
-        if (
-          err?.message?.includes('duplicate key value') ||
-          err?.details?.includes('already exists')
-        ) {
-          console.log(`🔁 Skipped existing chunk from "${safeHeading}" (already upserted)`);
-        } else {
-          console.error(`❌ Failed to upsert chunk from "${safeHeading}"`, err);
-        }
+    try {
+      await upsertToSupabase({
+        heading: 'Resume', // Generic heading since we're chunking the full doc
+        chunk: trimmed,
+        hash: chunkHash,
+        embedding,
+        position: globalIndex++,
+      });
+      console.log(`✅ Upserted chunk #${globalIndex}`);
+      upsertedChunks++;
+    } catch (err: any) {
+      if (
+        err?.message?.includes('duplicate key value') ||
+        err?.details?.includes('already exists')
+      ) {
+        console.log(`🔁 Skipped existing chunk #${globalIndex} (already upserted)`);
+      } else {
+        console.error(`❌ Failed to upsert chunk #${globalIndex}`, err);
       }
     }
   }
@@ -160,7 +194,7 @@ async function main() {
     }
   }
 
-  console.log(`✨ Done. Upserted ${upsertedChunks} new chunks from ${sections.length} sections.`)
+  console.log(`✨ Done. Upserted ${upsertedChunks} new chunks from ${chunks.length} chunks.`)
 
   // Verify that the number of vectors in the database matches the number of chunks sent over
   const { count, error: countError } = await supabase

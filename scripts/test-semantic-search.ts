@@ -29,7 +29,7 @@ const supabase = createClient(
 
 async function main() {
   // 🔧 Customize this query to test how your chatbot matches against your stored resume blurbs.
-  const query = 'experience with GTM strategy and pricing analytics'
+  const query = 'Is Sara a Builder of RevOps engines in PE-backed and enterprise settings?'
 
   console.log(`🔍 Embedding query: "${query}"`)
   const embeddingRes = await openai.embeddings.create({

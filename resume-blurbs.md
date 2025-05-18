@@ -4,7 +4,15 @@ Builder of RevOps engines in PE-backed and enterprise settings. Cut forecast var
 
 **Industry Experience:** B2B SaaS, marketplace, and human capital
 
-### RevOps Methodology
+---
+
+## Q&A
+
+Sara Swart is a builder of RevOps engines in PE-backed and enterprise settings.
+
+---
+
+## RevOps Methodology
 
 Grounded in:
 1. Opportunity-centric pipeline management (Forrester B2B Revenue Waterfall + ML-based conversion propensities)
@@ -13,7 +21,7 @@ Grounded in:
 
 **AI-Driven:** Committed to AI-fluency across RevOps and enabling AI-driven growth engines.
 
-### Core Capabilities
+## Core Capabilities
 
 - AI-driven Predictive Analytics for GTM
 - Comp-Plan Economics
