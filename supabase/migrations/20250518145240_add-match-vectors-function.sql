@@ -36,7 +36,7 @@ as $$
     metadata,
     1 - (embedding <=> query_embedding) as similarity
   from vectors
-  where embedding <=> query_embedding < match_threshold
-  order by embedding <=> query_embedding
+  where (embedding <=> query_embedding) < match_threshold
+  order by (embedding <=> query_embedding) asc
   limit match_count;
 $$;
