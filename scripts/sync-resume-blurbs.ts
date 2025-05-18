@@ -11,11 +11,14 @@ const CHUNK_SIZE = 2000 // Approximate characters for ~500 tokens
 
 const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, OPENAI_API_KEY } = process.env
 
+// Uncomment the following for testing/debugging purposes only.
+/*
 console.log({
   SUPABASE_URL,
   SUPABASE_SERVICE_ROLE_KEY: SUPABASE_SERVICE_ROLE_KEY?.slice(0, 5) + '...', // avoid leaking full key
   OPENAI_API_KEY: OPENAI_API_KEY?.slice(0, 5) + '...',
 })
+*/
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !OPENAI_API_KEY) {
   throw new Error("Missing one of SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, or OPENAI_API_KEY in environment variables.")
@@ -90,21 +93,26 @@ async function main() {
       allHashes.push(chunkHash)
       const embedding = await embedText(trimmed)
 
-   try {
-  await upsertToSupabase({
-    heading: safeHeading,
-    chunk: trimmed,
-    hash: chunkHash,
-    embedding,
-    position: globalIndex++,
-  })
-} catch (err) {
-  console.error(`❌ Failed to upsert chunk with hash: ${chunkHash}`, err)
-}
-
-      totalChunks++
-
-      console.log(`✅ Upserted chunk from "${safeHeading}"`)
+      try {
+        await upsertToSupabase({
+          heading: safeHeading,
+          chunk: trimmed,
+          hash: chunkHash,
+          embedding,
+          position: globalIndex++,
+        });
+        console.log(`✅ Upserted chunk from "${safeHeading}"`);
+        totalChunks++;
+      } catch (err: any) {
+        if (
+          err?.message?.includes('duplicate key value') ||
+          err?.details?.includes('already exists')
+        ) {
+          console.log(`🔁 Skipped existing chunk from "${safeHeading}" (already upserted)`);
+        } else {
+          console.error(`❌ Failed to upsert chunk from "${safeHeading}"`, err);
+        }
+      }
     }
   }
 
