@@ -1,1 +1,6 @@
 .env
+
+# ignore private content directory
+private/
+*.md
+!README.md
