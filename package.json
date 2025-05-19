@@ -6,5 +6,11 @@
     "langchain": "^0.3.26",
     "marked": "^15.0.11",
     "openai": "^4.100.0"
+  },
+  "scripts": {
+    "watch:resume": "nodemon --watch private/resume-blurbs.md --exec \"npx tsx scripts/sync-resume-blurbs.ts\""
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
   }
 }

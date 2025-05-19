@@ -37,6 +37,12 @@ To run the sync process:
 npx tsx scripts/sync-resume-blurbs.ts
 ```
 
+To auto-sync on file save:
+```bash
+npm run watch:resume
+```
+This watches `private/resume-blurbs.md` for changes and automatically re-embeds and syncs to Supabase.
+
 To test semantic search:
 ```bash
 npx tsx scripts/test-semantic-search.ts
@@ -53,7 +59,14 @@ SUPABASE_URL=https://your-project-id.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
 ```
 
+> ℹ️ For auto-syncing on file save, ensure you have `nodemon` installed as a dev dependency:
+> ```bash
+> npm install --save-dev nodemon
+> ```
+
 > ⚠️ These environment variables must also be configured in Vercel for deployment.
+
+> ⚠️ This repo is public. Your markdown content (e.g. `resume-blurbs.md`) is excluded from version control via `.gitignore`.
 
 ---
 
@@ -81,6 +94,17 @@ The chatbot:
 - Embeds the question
 - Runs `match_vectors`
 - Returns top relevant chunks from your resume
+
+---
+
+## 🔒 Content Privacy Strategy
+
+This repo is public, but sensitive markdown content (like your resume) is excluded using `.gitignore` rules. Only code, migrations, and test utilities are versioned publicly.
+
+To preserve privacy:
+- Keep your `.md` files in the local `private/` directory
+- Do not commit markdown content to Git
+- Optionally rename `resume-blurbs.md` and update your sync script if needed
 
 ---
 

@@ -25,7 +25,7 @@ import OpenAI from 'openai'
 import { createClient } from '@supabase/supabase-js'
 import { marked } from 'marked'
 
-const RESUME_BLURBS_PATH = path.resolve(__dirname, '../resume-blurbs.md')
+const RESUME_BLURBS_PATH = path.resolve(__dirname, '../private/resume-blurbs.md')
 const CHUNK_SIZE = 2000 // Approximate characters for ~500 tokens
 
 const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, OPENAI_API_KEY } = process.env
@@ -140,7 +140,7 @@ async function main() {
   for (const chunk of chunks) {
     const trimmed = chunk.trim()
     if (DEBUG_CHUNKS) {
-      console.log(`🔍 Chunk #${globalIndex + 1}/${chunks.length}:\n${trimmed}\n---`)
+      console.log(`🔍 Chunk #${globalIndex + 1}/${chunks.length}: ${trimmed.slice(0, 100)}...`)
     }
     const chunkHash = hashText(trimmed)
     allHashes.push(chunkHash)
