@@ -79,7 +79,7 @@ supabase/migrations/20250518145240_add-match-vectors-function.sql
 
 ---
 
-## 🔁 Updates
+## 🔁 Updates 
 
 Any changes to `resume-blurbs.md` should be followed by a sync using the script. GitHub Actions can automate this using a webhook.
 
