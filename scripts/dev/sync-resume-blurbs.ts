@@ -69,6 +69,7 @@ async function upsertToSupabase(data: {
   hash: string
   embedding: number[]
   position: number
+  recency_score: number
 }) {
   const { error } = await supabase.from('vectors').upsert({
     content: data.chunk,
@@ -76,6 +77,7 @@ async function upsertToSupabase(data: {
     metadata: {
       heading: data.heading,
       position: data.position,
+      recency_score: data.recency_score,
     },
     embedding: data.embedding,
   })
@@ -131,6 +133,7 @@ async function main() {
           hash,
           embedding,
           position: metadata.position ?? index,
+          recency_score: metadata.recency_score,
         });
         console.log(`✅ Upserted chunk #${index + 1}`);
         upsertedChunks++
