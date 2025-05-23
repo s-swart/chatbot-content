@@ -20,9 +20,10 @@ The source of truth. All experience is written here in markdown using level-2 he
 
 ### `scripts/`
 Contains utility scripts:
-- `sync-resume-blurbs.ts` – Reads `resume-blurbs.md`, generates embeddings, syncs them to Supabase with deduplication and cleanup
+- `sync-resume-blurbs.ts` – Reads `resume-blurbs.md`, generates embeddings, syncs them to Supabase with deduplication and cleanup. This script should be adapted to embed from the metadata JSON instead of re-generating chunks from scratch.
 - `test-semantic-search.ts` – Tests how a query matches stored vectors
 - `test-openai.ts` – Validates OpenAI key and embedding access
+- `generate-embeddings-metadata.ts` – Breaks markdown into chunks and uses GPT to assign section labels and recency weights. Uses `config.ts` for persona and employer context.
 
 ### `supabase/`
 Contains Supabase schema and migrations:
@@ -47,6 +48,19 @@ To test semantic search:
 ```bash
 npx tsx scripts/test-semantic-search.ts
 ```
+
+---
+
+## 🧠 Metadata Labeling & Recency Scoring
+
+To generate metadata-labeled chunks using GPT:
+```bash
+npx tsx scripts/generate-embeddings-metadata.ts
+```
+
+This creates `data/chunks-with-metadata.json`, which includes section labels and recency scores. These scores improve semantic search relevance by boosting recent and strategic experience.
+
+> ℹ️ Resume identity and scoring guidance is managed in `scripts/config.ts`. Update this file to reflect the most recent employer and strategic role (e.g. “VP of RevOps & AI”).
 
 ---
 

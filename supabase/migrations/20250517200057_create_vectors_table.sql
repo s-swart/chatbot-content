@@ -15,6 +15,8 @@
 -- - `metadata`: additional information like the section heading
 -- - `embedding`: vector(1536) from OpenAI models (e.g. ada-002)
 
+create extension if not exists vector;
+
 create table if not exists vectors (
   id uuid primary key default gen_random_uuid(),
   content text not null,

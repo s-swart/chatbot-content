@@ -11,6 +11,7 @@
     "watch:resume": "nodemon --watch private/resume-blurbs.md --exec \"npx tsx scripts/sync-resume-blurbs.ts\""
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "tsx": "^4.19.4"
   }
 }
